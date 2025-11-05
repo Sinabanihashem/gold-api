@@ -104,7 +104,7 @@ bot.run()
 
 ## 👤 Developer
 
-@Sinabanis
+mir sina banihashem
 
 📍 Hosted on: Cloudflare Workers          
 🗳 Rubika: https://rubika.ir/Sinabani_api          
