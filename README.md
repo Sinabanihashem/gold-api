@@ -41,7 +41,7 @@ GET https://gold.api-sina-free.workers.dev/gold
 
 ## 🧾 نمونه خروجی
 
-```
+```json
 {
   "gold_18_ayar": 104989000,
   "gold_24_ayar": 139983000,
@@ -68,7 +68,7 @@ GET https://gold.api-sina-free.workers.dev/gold
 
 ## 💻 نمونه استفاده در Python
 
-```
+```python
 import requests
 
 res = requests.get("https://gold.api-sina-free.workers.dev/gold")
@@ -83,7 +83,7 @@ print("⏱ آخرین بروزرسانی:", data["updated_at"])
 
 ## 🤖 استفاده در ربات روبیکا / بات‌ها
 
-```
+```python
 from rubpy import Client, filters
 import requests
 
