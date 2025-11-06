@@ -1,4 +1,4 @@
-# 👑 SinaGoldAPI version : 2.1.1
+# 👑 SinaGoldAPI version : 2.1.2
 
 وب‌سرویس **SinaGoldAPI** یک سرویس سریع و سبک برای دریافت قیمت‌ لحظه‌ای **طلا و سکه** از معتبرترین منبع اعلام نرخ‌هاست 🇮🇷💰  
 فقط با یک درخواست GET می‌تونی نرخ‌های لحظه‌ای رو بگیری — **بدون نیاز به API Key** 🚀
@@ -43,19 +43,23 @@ GET https://gold.api-sina-free.workers.dev/gold
 
 ```
 {
-  "gold_18_ayar": 104686000,
-  "gold_24_ayar": 139580000,
-  "gold_second_hand": 103290300,
-  "mesghal_tala": 453590000,
-  "abshode_naghd": 453750000,
-  "abshode_moamelati": 453450000,
-  "sekke_emami": 1109950000,
-  "sekke_bahar_azadi": 1040100000,
-  "nim_sekke": 579500000,
-  "rob_sekke": 333000000,
+  "gold_18_ayar": 104989000,
+  "gold_24_ayar": 139983000,
+  "gold_second_hand": 103588700,
+  "mesghal_tala": 454890000,
+  "abshode_naghd": 454740000,
+  "abshode_moamelati": 454750000,
+  "sekke_emami": 1114050000,
+  "sekke_bahar_azadi": 1044300000,
+  "nim_sekke": 582000000,
+  "rob_sekke": 336000000,
   "sekke_gerami": 164000000,
-  "habab_emami": 99440000,
-  "updated_at": "2025-11-05T20:24:12.793Z",
+  "habab_emami": 96460000,
+  "habab_bahar": 27160000,
+  "habab_nim": 73470000,
+  "habab_rob": 81710000,
+  "habab_gerami": 38910000,
+  "updated_at": "2025-11-06T12:19:14.378Z",
   "source": "tgju.org"
 }
 ```
@@ -83,19 +87,92 @@ print("⏱ آخرین بروزرسانی:", data["updated_at"])
 from rubpy import Client, filters
 import requests
 
-bot = Client(name="sina_gold")
+bot = Client(name="sina_gold_pro")
+
+API_URL = "https://gold.api-sina-free.workers.dev/gold"
+
+def get_gold_data():
+    try:
+        res = requests.get(API_URL, timeout=5)
+        return res.json()
+    except:
+        return None
+
+def format_number(n):
+    return f"{n:,}"
 
 @bot.on_message_updates(filters.text)
 async def handler(message):
-    if message.text == "قیمت طلا":
-        data = requests.get("https://gold.api-sina-free.workers.dev/gold").json()
-        await message.reply(
-            f"💰 قیمت لحظه‌ای طلا:\n\n"
-            f"طلای ۱۸ عیار: {data['gold_18_ayar']:,} تومان\n"
-            f"سکه امامی: {data['sekke_emami']:,} تومان\n"
-            f"نیم‌سکه: {data['nim_sekke']:,} تومان\n"
-            f"\n⏱ بروزرسانی: {data['updated_at']}"
+    text = message.text.strip()
+
+    if text in ["/help", "منو"]:
+        return await message.reply(
+            "💰 `قیمت طلا` → نمایش نرخ‌های اصلی\n"
+            "📦 `جزئیات` → نمایش تمام نرخ‌ها + حباب‌ها\n"
+            "🔄 `آپدیت` → بررسی آخرین زمان بروز رسانی\n"
+            "ℹ️ `منبع` → نمایش منبع نرخ‌ها\n"
+            , parse_mode="markdown"
         )
+
+    elif text == "قیمت طلا":
+        data = get_gold_data()
+        if not data:
+            return await message.reply("❗ خطا در دریافت اطلاعات.")
+        
+        await message.reply(
+            f"💰 *قیمت لحظه‌ای طلا و سکه:*\n\n"
+            f"🥇 طلای ۱۸ عیار: {format_number(data['gold_18_ayar'])} ریال\n"
+            f"🏅 سکه امامی: {format_number(data['sekke_emami'])} ریال\n"
+            f"🌓 نیم سکه: {format_number(data['nim_sekke'])} ریال\n"
+            f"🌗 ربع سکه: {format_number(data['rob_sekke'])} ریال\n"
+            f"\n⏱ بروزرسانی: {data['updated_at']}"
+            , parse_mode="markdown"
+        )
+
+    elif text == "جزئیات":
+        data = get_gold_data()
+        if not data:
+            return await message.reply("❗ خطا در دریافت اطلاعات.")
+
+        await message.reply(
+            f"📦 *جزئیات کامل قیمت‌ها:*\n\n"
+            f"🥇 طلای ۱۸ عیار: {format_number(data['gold_18_ayar'])} ریال\n"
+            f"🥇 طلای ۲۴ عیار: {format_number(data['gold_24_ayar'])} ریال\n"
+            f"🟡 طلای دست دوم: {format_number(data['gold_second_hand'])} ریال\n"
+            f"⚖️ مثقال طلا: {format_number(data['mesghal_tala'])} ریال\n"
+            f"🔥 آبشده نقدی: {format_number(data['abshode_naghd'])} ریال\n"
+            f"💹 آبشده معاملاتی: {format_number(data['abshode_moamelati'])} ریال\n\n"
+
+            f"🏅 *قیمت انواع سکه:*\n"
+            f"سکه امامی: {format_number(data['sekke_emami'])} ریال\n"
+            f"سکه بهار آزادی: {format_number(data['sekke_bahar_azadi'])} ریال\n"
+            f"نیم سکه: {format_number(data['nim_sekke'])} ریال\n"
+            f"ربع سکه: {format_number(data['rob_sekke'])} ریال\n"
+            f"سکه گرمی: {format_number(data['sekke_gerami'])} ریال\n\n"
+
+            f"🎯 *حباب سکه‌ها:*\n"
+            f"حباب امامی: {format_number(data['habab_emami'])} ریال\n"
+            f"حباب بهار آزادی: {format_number(data['habab_bahar'])} ریال\n"
+            f"حباب نیم سکه: {format_number(data['habab_nim'])} ریال\n"
+            f"حباب ربع سکه: {format_number(data['habab_rob'])} ریال\n"
+            f"حباب سکه گرمی: {format_number(data['habab_gerami'])} ریال\n\n"
+
+            f"⏱ بروزرسانی: {data['updated_at']}\n"
+            f"🔗 منبع: {data['source']}"
+            , parse_mode="markdown"
+        )
+
+    elif text == "آپدیت":
+        data = get_gold_data()
+        if not data:
+            return await message.reply("⛔ خطا در اتصال به سرور.")
+        await message.reply(f"🔄 آخرین بروزرسانی: {data['updated_at']}")
+
+    elif text == "منبع":
+        data = get_gold_data()
+        if not data:
+            return await message.reply("⛔ اتصال برقرار نشد.")
+        await message.reply(f"📌 منبع نرخ‌ها: {data['source']}")
 
 bot.run()
 ```
